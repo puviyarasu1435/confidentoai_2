@@ -1,38 +1,66 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const db = require('./firebaseConfig'); // Ensure this is correctly set up
-const { collection, addDoc, getDocs, doc, getDoc,updateDoc } = require('firebase/firestore');
-const path = require('path');
-const GeminiAIRoutes = require('./routes/Gemini');
-var ANIMATION_STATE = "IDEL";
+const db = require("./firebaseConfig"); // Ensure this is correctly set up
+const { collection, addDoc, getDocs, doc, getDoc, updateDoc } = require("firebase/firestore");
+const path = require("path");
+const GeminiAIRoutes = require("./routes/Gemini");
+
+let ANIMATION_STATE = process.env.ACTIVE_ACTION || "IDEL"; 
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
+// WebSocket connection setup
 io.on("connection", (socket) => {
-    console.log("Connected");
+    console.log("Client connected");
+
+    // Send the current animation state to the newly connected client
+    socket.emit("AnimationState", { ANIMATION_STATE });
+
+    socket.on("disconnect", () => {
+        console.log("Client disconnected");
+    });
 });
 
-app.use('/AI', GeminiAIRoutes);
+// Load initial state from Firebase when the server starts
+const loadInitialState = async () => {
+    try {
+        const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
+        const docSnap = await getDoc(docRef);
 
+        if (docSnap.exists()) {
+            ANIMATION_STATE = docSnap.data().ANIMATION_STATE || "IDEL"; // Default to "IDEL" if no state is found
+            console.log("Loaded initial animation state:", ANIMATION_STATE);
+        } else {
+            console.log("No animation state found, defaulting to IDEL");
+        }
+    } catch (error) {
+        console.error("Error loading initial state from Firebase:", error);
+    }
+};
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+loadInitialState(); // Call to load the initial state
+
+app.use("/AI", GeminiAIRoutes);
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Environment Routes
-app.post('/environment', async (req, res) => {
+app.post("/environment", async (req, res) => {
     const newEnvironment = {
         Name: req.body.Name || "",
         Index: req.body.Index || 0,
     };
 
     try {
-        const docRef = await addDoc(collection(db, 'Environment'), newEnvironment);
+        const docRef = await addDoc(collection(db, "Environment"), newEnvironment);
         res.status(201).send({ id: docRef.id, ...newEnvironment });
     } catch (error) {
         console.error("Error adding document: ", error);
@@ -40,25 +68,28 @@ app.post('/environment', async (req, res) => {
     }
 });
 
-app.get('/environment', async (req, res) => {
+app.get("/environment", async (req, res) => {
     try {
-        const snapshot = await getDocs(collection(db, 'Environment'));
-        const environments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const snapshot = await getDocs(collection(db, "Environment"));
+        const environments = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
         res.status(200).send(environments);
     } catch (error) {
-        console.error("Error fetching documents: ", error); 
+        console.error("Error fetching documents: ", error);
         res.status(500).send({ error: error.message });
     }
 });
 
-app.get('/environment/:id', async (req, res) => {
+app.get("/environment/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const docRef = doc(db, 'Environment', id);
+        const docRef = doc(db, "Environment", id);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-            return res.status(404).send({ error: 'Document not found' });
+            return res.status(404).send({ error: "Document not found" });
         }
 
         res.status(200).send({ id: docSnap.id, ...docSnap.data() });
@@ -69,27 +100,30 @@ app.get('/environment/:id', async (req, res) => {
 });
 
 // Get seats for an environment
-app.get('/environment/:id/seats', async (req, res) => {
+app.get("/environment/:id/seats", async (req, res) => {
     const { id } = req.params;
 
     try {
-        const envDoc = await getDoc(doc(db, 'Environment', id));
+        const envDoc = await getDoc(doc(db, "Environment", id));
 
         if (envDoc.exists()) {
-            res.json(envDoc.data());
+            res.send(envDoc.metadata);
         } else {
-            res.status(404).json({ error: 'Environment not found' });
+            res.status(404).json({ error: "Environment not found" });
         }
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching environment data' });
+        res.status(500).json({ error: "Error fetching environment data" });
     }
 });
 
 // Characters Route
-app.get('/characters', async (req, res) => {
+app.get("/characters", async (req, res) => {
     try {
-        const snapshot = await getDocs(collection(db, 'Characters'));
-        const characters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const snapshot = await getDocs(collection(db, "Characters"));
+        const characters = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
         res.status(200).send(characters);
     } catch (error) {
         console.error("Error fetching characters: ", error);
@@ -97,39 +131,62 @@ app.get('/characters', async (req, res) => {
     }
 });
 
-app.post('/sendToUnity', async (req, res) => {
-    console.log(req.body)
+// Send Data to Unity and Emit Event
+app.post("/sendToUnity", async (req, res) => {
+    console.log(req.body);
     try {
-        const docRef = doc(db, 'System', "uZCY1O4xlKq2AOWAnm1F");
+        const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
         await updateDoc(docRef, req.body);
-        io.emit("EnvData",{"Index": req.body.Environment})
-        res.status(200).send('Document updated successfully');
-      } catch (error) {
+        io.emit("EnvData", { Index: req.body.Environment });
+        res.status(200).send("Document updated successfully");
+    } catch (error) {
         console.error("Error updating document: ", error);
-        res.status(500).send('Error updating document');
-      }
+        res.status(500).send("Error updating document");
+    }
 });
 
-app.post('/AniamtionSate', async (req, res) => {
+// Handle Animation State
+app.post("/AnimationState", async (req, res) => {
+    if (!req.body.ANIMATION_STATE) {
+        return res.status(400).send("ANIMATION_STATE is required");
+    }
 
     try {
-        const docRef = doc(db, 'System', "uZCY1O4xlKq2AOWAnm1F");
-        await updateDoc(docRef, req.body);
+        const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
+        await updateDoc(docRef, { ANIMATION_STATE: req.body.ANIMATION_STATE });
         ANIMATION_STATE = req.body.ANIMATION_STATE;
-        res.status(200).send('Document updated successfully');
-      } catch (error) {
-        console.error("Error updating document: ", error);
-        res.status(500).send('Error updating document');
-      }
-    res.send(req.body)
+        io.emit("AnimationState", { ANIMATION_STATE });
+        res.status(200).send("Animation state updated successfully");
+    } catch (error) {
+        console.error("Error updating animation state:", error);
+        res.status(500).send("Error updating animation state");
+    }
 });
 
-app.get('/GetAnimationState', async (req, res) => {
-    res.send(ANIMATION_STATE)
-});
+// Get Current Animation State
+app.get("/CurrentEnvironment", async (req, res) => {
+    try {
+        // Fetch the document from Firestore
+        const envDoc = await getDoc(doc(db, "System", "uZCY1O4xlKq2AOWAnm1F"));
 
+        if (envDoc.exists()) {
+            // Get the document data
+            let data = envDoc.data();
+
+            // Extract only the Environment field
+            const environmentValue = data.Environment;
+
+            // Send the Environment value in the response
+            res.send({ Environment: environmentValue });
+        } else {
+            res.status(404).json({ error: "Environment not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching environment data" });
+    }
+});
+// Start the server
 const port = process.env.PORT || 3000;
-
 server.listen(port, () => {
-    console.log("SERVER IS RUNNING ON PORT 3001");
+    console.log(`SERVER IS RUNNING ON PORT ${port}`);
 });
