@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment and Seat Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        #environmentSelect{
+            width: 90%;
+            height: 10%;
+            margin: 5%;
+        }
+        #characterSelect{
+            width: 90%;
+            height: 10%;
+            margin: 5%;
+        }
+        .seating-layout {
+            display: grid;
+            gap: 5px;
+            margin-top: 20px;
+            width: 50%;
+            justify-items: stretch
+
+
+        }
+
+        #OptionSelect {
+            width: 40%;
+            display: inline-flexbox;
+        }
+        #bookButton{
+            width: 100%;
+            height: 10%;
+            margin-top: 1%;
+            background-color: rgb(230, 78, 8);
+            color: white;
+            border-radius: 1%;
+            border: none;
+        }
+
+        #ReadyButton{
+            margin-top: 1%;
+            width: 100%;
+            height: 12%;
+            background-color: green;
+            color: white;
+            border-radius: 1%;
+            border: none;
+        }
+
+        .seat {
+            width: 50px;
+            height: 50px;
+            background-color: gray;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 5%;
+        }
+
+        .seat.selected {
+            background-color: green;
+        }
+
+        .seat.occupied {
+            background-color: red;
+            cursor: not-allowed;
+        }
+        #AnimationSelect{
+            width: 100%;
+            height: 10%;
+            margin-top: 10%;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div id="OptionSelect">
+        <h1>Select Environment, Character, and Seats</h1>
+        <label for="environmentSelect">Select Environment:</label>
+        <select id="environmentSelect">
+            <option value="">-- Choose an Environment --</option>
+          
+        </select>
+
+        <!-- Character Selection -->
+        <label for="characterSelect">Select Character:</label>
+        <select id="characterSelect">
+            <option value="">-- Choose a Character --</option>
+            <!-- Options will be dynamically added here -->
+        </select><br>
+        <button id="bookButton"  disabled>Book Seats</button>
+        <button id="ReadyButton">Ready</button>
+        
+        <select id="AnimationSelect">
+            <option value="IDEL">IDEL</option>
+            <option value="CLAP">CLAP</option>
+            <option value="STAND_UP_AND_CLAP">STANDUP AND CLAP</option>            <!-- Options will be dynamically added here -->
+        </select>
+    </div>
+    <div class="seating-layout">
+
+    </div>
+
+
+    <script>
+        const seatContainer = document.querySelector('.seating-layout');
+        const bookButton = document.getElementById('bookButton');
+        const characterSelect = document.getElementById('characterSelect');
+
+        const Seatsdata = []
+        // Fetch characters and populate the character select dropdown
+        async function fetchCharacters() {
+            try {
+                const response = await fetch('/characters');
+                const characters = await response.json();
+
+                // Check if characters are retrieved and populate the dropdown
+                if (Array.isArray(characters) && characters.length > 0) {
+                    characters.forEach(character => {
+                        const option = document.createElement('option');
+                        option.value = character.id;
+                        option.textContent = character.Name; // Ensure this matches your data structure
+                        characterSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('No characters found or incorrect format:', characters);
+                }
+            } catch (error) {
+                console.error('Error fetching characters:', error);
+            }
+        }
+
+        // Function to dynamically create seats based on seat data
+        function createSeats(seatData) {
+            // Clear previous seats
+            seatContainer.innerHTML = '';
+            // Set grid columns
+            seatContainer.style.gridTemplateColumns = `repeat(auto-fit, minmax(50px, 1fr))`;
+
+            // Create each seat
+            seatData.forEach(seat => {
+                const seatElement = document.createElement('div');
+                seatElement.classList.add('seat');
+                seatElement.textContent = seat.Name;
+
+                if (seat.Occupied) {
+                    seatElement.classList.add('occupied');
+                } else {
+                    seatElement.addEventListener('click', () => {
+                        if (!seatElement.classList.contains('occupied')) {
+                            seatElement.classList.toggle('selected');
+                            updateBookButtonState();
+                        }
+                    });
+                }
+
+                seatContainer.appendChild(seatElement);
+            });
+        }
+
+        // Fetch environments and populate the select dropdown
+        async function fetchEnvironments() {
+            try {
+                const response = await fetch('/environment');
+                const environments = await response.json();
+                const select = document.getElementById('environmentSelect');
+
+                environments.forEach(env => {
+                    const option = document.createElement('option');
+                    option.value = env.id;
+                    option.textContent = env.Name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching environments:', error);
+            }
+        }
+
+        // Handle environment selection
+        document.getElementById('environmentSelect').addEventListener('change', async (e) => {
+            const envId = e.target.value;
+            if (!envId) return;
+
+            // Fetch seat data for the selected environment
+            try {
+                const response = await fetch(`/environment/${envId}/seats`);
+                const environment = await response.json();
+                // Create seats based on the seat data
+                createSeats(environment.Seats);
+            } catch (error) {
+                console.error('Error fetching seat data:', error);
+            }
+        });
+
+        // Update the book button's state
+        function updateBookButtonState() {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            bookButton.disabled = selectedSeats.length === 0 || !characterSelect.value;
+        }
+
+        // Handle seat booking
+        bookButton.addEventListener('click', () => {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            const characterName = characterSelect.options[characterSelect.selectedIndex].textContent;
+
+            // Check if character is selected
+            if (!characterName) {
+                alert("Please select a character");
+                return;
+            }
+
+            // Collect seat names for the alert
+            const seatNames = Array.from(selectedSeats).map(seat => seat.textContent);
+
+            // Assign character name to the selected seats and update UI
+            selectedSeats.forEach(seat => {
+                Seatsdata.push({
+                    [seat.textContent]: characterName
+                })
+                seat.textContent = characterName; // Show character name on the seat
+                seat.classList.remove('selected'); // Remove the selected class
+                seat.classList.add('occupied'); // Mark seat as occupied
+
+            });
+
+            // Alert showing the booking is complete with character's name and seat names
+            // alert(`Booking completed for character: ${characterName}\nSeats: ${seatNames.join(', ')}`);
+
+            // Disable book button after booking
+            updateBookButtonState();
+        });
+
+        document.getElementById('ReadyButton').addEventListener('click', async (e) => {
+            const select = document.getElementById('environmentSelect');
+            const response = await fetch(`/environment/${select.value}/seats`);
+            const environment = await response.json();
+            fetch(`/sendToUnity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ Environment: environment.Index, Seats: Seatsdata })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data);
+                });
+        });
+
+        document.getElementById('AnimationSelect').addEventListener('change', async (e) => {
+            const envId = e.target.value;
+            if (!envId) return;
+            // alert(envId)
+            fetch(`/AniamtionSate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify({ STATE: envId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data);
+                });
+        });
+        // Fetch environments and characters when the page loads
+        fetchEnvironments();
+        fetchCharacters();
+    </script>
+</body>
+
+</html>
