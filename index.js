@@ -111,10 +111,23 @@ app.post('/sendToUnity', async (req, res) => {
 });
 
 app.post('/AniamtionSate', async (req, res) => {
-    console.log(req.body)
-    io.emit("AnimationState",req.body)
+
+    try {
+        const docRef = doc(db, 'System', "uZCY1O4xlKq2AOWAnm1F");
+        await updateDoc(docRef, req.body);
+        ANIMATION_STATE = req.body.ANIMATION_STATE;
+        res.status(200).send('Document updated successfully');
+      } catch (error) {
+        console.error("Error updating document: ", error);
+        res.status(500).send('Error updating document');
+      }
     res.send(req.body)
 });
+
+app.get('/GetAnimationState', async (req, res) => {
+    res.send(ANIMATION_STATE)
+});
+
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {

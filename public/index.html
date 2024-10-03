@@ -270,7 +270,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body:JSON.stringify({ STATE: envId }),
+                body:JSON.stringify({ ANIMATION_STATE: envId }),
             })
                 .then(response => response.json())
                 .then(data => {
