@@ -115,7 +115,8 @@ app.post('/AniamtionSate', async (req, res) => {
     io.emit("AnimationState",req.body)
     res.send(req.body)
 });
+const port = process.env.PORT || 3000;
 
-server.listen(3001, () => {
+server.listen(port, () => {
     console.log("SERVER IS RUNNING ON PORT 3001");
 });
