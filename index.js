@@ -5,7 +5,7 @@ const db = require('./firebaseConfig'); // Ensure this is correctly set up
 const { collection, addDoc, getDocs, doc, getDoc,updateDoc } = require('firebase/firestore');
 const path = require('path');
 const GeminiAIRoutes = require('./routes/Gemini');
-
+var ANIMATION_STATE = "IDEL";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
