@@ -265,8 +265,8 @@
         document.getElementById('AnimationSelect').addEventListener('change', async (e) => {
             const envId = e.target.value;
             if (!envId) return;
-            // alert(envId)
-            fetch(`/AniamtionSate`, {
+            alert(envId)
+            fetch(`/AnimationState`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

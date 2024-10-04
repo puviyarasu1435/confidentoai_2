@@ -27,24 +27,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// Load initial state from Firebase when the server starts
-const loadInitialState = async () => {
-    try {
-        const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            ANIMATION_STATE = docSnap.data().ANIMATION_STATE || "IDEL"; // Default to "IDEL" if no state is found
-            console.log("Loaded initial animation state:", ANIMATION_STATE);
-        } else {
-            console.log("No animation state found, defaulting to IDEL");
-        }
-    } catch (error) {
-        console.error("Error loading initial state from Firebase:", error);
-    }
-};
-
-loadInitialState(); // Call to load the initial state
+// Load initial state from Firebase when the server starts // Call to load the initial state
 
 app.use("/AI", GeminiAIRoutes);
 
@@ -147,22 +130,14 @@ app.post("/sendToUnity", async (req, res) => {
 
 // Handle Animation State
 app.post("/AnimationState", async (req, res) => {
-    if (!req.body.ANIMATION_STATE) {
-        return res.status(400).send("ANIMATION_STATE is required");
-    }
-
-    try {
-        const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
-        await updateDoc(docRef, { ANIMATION_STATE: req.body.ANIMATION_STATE });
-        ANIMATION_STATE = req.body.ANIMATION_STATE;
-        io.emit("AnimationState", { ANIMATION_STATE });
-        res.status(200).send("Animation state updated successfully");
-    } catch (error) {
-        console.error("Error updating animation state:", error);
-        res.status(500).send("Error updating animation state");
-    }
+    ANIMATION_STATE = req.body.ANIMATION_STATE;
+    console.log(ANIMATION_STATE);
 });
 
+app.get("/AnimationState", async (req, res) => {
+
+    res.send(ANIMATION_STATE);
+});
 // Get Current Animation State
 app.get("/CurrentEnvironment", async (req, res) => {
     try {
