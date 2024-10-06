@@ -6,7 +6,7 @@ const { collection, addDoc, getDocs, doc, getDoc, updateDoc } = require("firebas
 const path = require("path");
 const GeminiAIRoutes = require("./routes/Gemini");
 
-let ANIMATION_STATE = process.env.ACTIVE_ACTION || "IDEL"; 
+const ANIMATION_STATE = {STATE:"IDEL"}; 
 
 const app = express();
 const server = http.createServer(app);
@@ -130,13 +130,13 @@ app.post("/sendToUnity", async (req, res) => {
 
 // Handle Animation State
 app.post("/AnimationState", async (req, res) => {
-    ANIMATION_STATE = req.body.ANIMATION_STATE;
-    console.log(ANIMATION_STATE);
+    ANIMATION_STATE['STATE'] = req.body.ANIMATION_STATE;
+    res.send(ANIMATION_STATE);
 });
 
 app.get("/AnimationState", async (req, res) => {
 
-    res.send(ANIMATION_STATE);
+    res.send(ANIMATION_STATE['STATE']);
 });
 // Get Current Animation State
 app.get("/CurrentEnvironment", async (req, res) => {
