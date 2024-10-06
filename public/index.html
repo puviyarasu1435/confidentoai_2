@@ -110,6 +110,7 @@
             <option value="CLAP">CLAP</option>
             <option value="STAND_UP_AND_CLAP">STANDUP AND CLAP</option>            <!-- Options will be dynamically added here -->
         </select>
+        <h2>Current Animayion State:<span id="AnimationStateText"></span></h2>
     </div>
     <div class="seating-layout">
 
@@ -120,8 +121,22 @@
         const seatContainer = document.querySelector('.seating-layout');
         const bookButton = document.getElementById('bookButton');
         const characterSelect = document.getElementById('characterSelect');
-
+        const AnimationSelect = document.getElementById('AnimationStateText');
+        fetchAnimationState();
         const Seatsdata = []
+        async function fetchAnimationState() {
+            try {
+                const response = await fetch('/AnimationState');  // Make GET request to /AnimationState
+                if (response.ok) {
+                    const animationState = await response.text();   // Get response as text
+                    document.getElementById('AnimationStateText').textContent = animationState;  // Display the state
+                } else {
+                    console.error('Failed to fetch animation state:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching animation state:', error);
+            }
+        }
         // Fetch characters and populate the character select dropdown
         async function fetchCharacters() {
             try {
@@ -265,7 +280,6 @@
         document.getElementById('AnimationSelect').addEventListener('change', async (e) => {
             const envId = e.target.value;
             if (!envId) return;
-            alert(envId)
             fetch(`/AnimationState`, {
                 method: 'POST',
                 headers: {
@@ -275,7 +289,8 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    alert(data);
+                    console.log(data)
+                    fetchAnimationState();
                 });
         });
         // Fetch environments and characters when the page loads
