@@ -110,7 +110,7 @@
             <option value="CLAP">CLAP</option>
             <option value="STAND_UP_AND_CLAP">STANDUP AND CLAP</option>            <!-- Options will be dynamically added here -->
         </select>
-        <h2>Current Animayion State:<span id="AnimationStateText"></span></h2>
+        <h2>Current Animation State:<span id="AnimationStateText"></span></h2>
     </div>
     <div class="seating-layout">
 
@@ -297,9 +297,16 @@
                     fetchAnimationState();
                 });
         });
+
+        async function test(){
+            const response = await fetch(`/AnimationState1`);
+            const stateanimation = await response.json();
+            AnimationSelect = stateanimation.State
+        }
         // Fetch environments and characters when the page loads
         fetchEnvironments();
         fetchCharacters();
+        test();
     </script>
 </body>
 

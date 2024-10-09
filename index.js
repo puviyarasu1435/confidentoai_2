@@ -137,6 +137,9 @@ app.post("/AnimationState", async (req, res) => {
 app.get("/AnimationState", async (req, res) => {
     res.send(ANIMATION_STATE['STATE']);
 });
+app.get("/AnimationState1", async (req, res) => {
+    res.json({State:ANIMATION_STATE['STATE']});
+});
 // Get Current Animation State
 app.get("/CurrentEnvironment", async (req, res) => {
     try {
