@@ -262,7 +262,7 @@
 
         document.getElementById('ReadyButton').addEventListener('click', async (e) => {
             const select = document.getElementById('environmentSelect');
-
+            console.log(select.value)
             const response = await fetch(`/environment/${select.value}`);
             const environment = await response.json();
 
