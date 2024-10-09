@@ -262,8 +262,10 @@
 
         document.getElementById('ReadyButton').addEventListener('click', async (e) => {
             const select = document.getElementById('environmentSelect');
-            const response = await fetch(`/environment/${select.value}/seats`);
+
+            const response = await fetch(`/environment/${select.value}`);
             const environment = await response.json();
+
             fetch(`/sendToUnity`, {
                 method: 'POST',
                 headers: {
@@ -275,7 +277,8 @@
                 .then(data => {
                     alert(data);
                 });
-            console.log(Seatsdata);
+            console.log(environment.Index);
+            confirm("Store the Seat postion\n",Seatsdata);
         });
 
         document.getElementById('AnimationSelect').addEventListener('change', async (e) => {
