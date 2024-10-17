@@ -45,7 +45,6 @@ app.post("/environment", async (req, res) => {
 
     try {
         const docRef = await addDoc(collection(db, "Environment"), newEnvironment);
-        isChange = !isChange;
         res.status(201).send({ id: docRef.id, ...newEnvironment });
     } catch (error) {
         console.error("Error adding document: ", error);
