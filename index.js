@@ -123,7 +123,7 @@ app.post("/sendToUnity", async (req, res) => {
         const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
         await updateDoc(docRef, req.body);
         isChange["Environment"] = req.body.Environment;
-        io.emit("EnvData", { Index: req.body.Environment });
+       
         
         res.status(200).send("Document updated successfully");
     } catch (error) {
