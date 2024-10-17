@@ -121,7 +121,7 @@ app.post("/sendToUnity", async (req, res) => {
     try {
         const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
         await updateDoc(docRef, req.body);
-        isChange['check'] = req.body.Environment;
+        isChange['check'] = String(req.body.Environment);
        
         
         res.status(200).send("Document updated successfully");
