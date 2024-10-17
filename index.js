@@ -7,6 +7,7 @@ const path = require("path");
 const GeminiAIRoutes = require("./routes/Gemini");
 
 const ANIMATION_STATE = {STATE:"IDEL"}; 
+const isChange = true;
 
 const app = express();
 const server = http.createServer(app);
@@ -121,12 +122,26 @@ app.post("/sendToUnity", async (req, res) => {
         const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
         await updateDoc(docRef, req.body);
         io.emit("EnvData", { Index: req.body.Environment });
+        isChange = !isChange;
         res.status(200).send("Document updated successfully");
     } catch (error) {
         console.error("Error updating document: ", error);
         res.status(500).send("Error updating document");
     }
 });
+
+
+
+app.get("/EnvChange", async (req, res) => {
+    res.send(isChange);
+});
+
+
+
+
+
+
+
 
 // Handle Animation State
 app.post("/AnimationState", async (req, res) => {
@@ -137,6 +152,7 @@ app.post("/AnimationState", async (req, res) => {
 app.get("/AnimationState", async (req, res) => {
     res.send(ANIMATION_STATE['STATE']);
 });
+
 app.get("/AnimationState1", async (req, res) => {
     res.json({State:ANIMATION_STATE['STATE']});
 });
