@@ -134,8 +134,8 @@ app.post("/sendToUnity", async (req, res) => {
 
 
 
-app.get("/EnvChange", async (req, res) => {
-    res.send(isChange["Environment"]);
+app.get("/EnvChange2", async (req, res) => {
+    res.send(isChange['Environment']);
 });
 
 
