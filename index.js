@@ -7,7 +7,7 @@ const path = require("path");
 const GeminiAIRoutes = require("./routes/Gemini");
 
 const ANIMATION_STATE = {STATE:"IDEL"}; 
-const isChange = {Environment:0};
+const isChange = {check:""};
 
 const app = express();
 const server = http.createServer(app);
@@ -121,7 +121,7 @@ app.post("/sendToUnity", async (req, res) => {
     try {
         const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
         await updateDoc(docRef, req.body);
-        isChange["Environment"] = req.body.Environment;
+        isChange['check'] = req.body.Environment;
        
         
         res.status(200).send("Document updated successfully");
@@ -134,7 +134,7 @@ app.post("/sendToUnity", async (req, res) => {
 
 
 app.get("/EnvChange2", async (req, res) => {
-    res.send(isChange['Environment']);
+    res.send(isChange['check']);
 });
 
 
