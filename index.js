@@ -2,12 +2,12 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const db = require("./firebaseConfig"); // Ensure this is correctly set up
-const { collection, addDoc, getDocs, doc, getDoc, updateDoc } = require("firebase/firestore");
+const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteField  } = require("firebase/firestore");
 const path = require("path");
 const GeminiAIRoutes = require("./routes/Gemini");
 
-const ANIMATION_STATE = {STATE:"IDEL"}; 
-const isChange = {check:""};
+let ANIMATION_STATE = {STATE:"IDEL"}; 
+let isChange = {check:""};
 
 const app = express();
 const server = http.createServer(app);
@@ -120,10 +120,14 @@ app.post("/sendToUnity", async (req, res) => {
     console.log(req.body);
     try {
         const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
-        await updateDoc(docRef, req.body);
+
+        // Combine the deletion of the Seats field and the update in a single updateDoc call
+        await updateDoc(docRef, {
+            Seats: deleteField(),  // Delete the Seats field
+            ...req.body            // Merge in the new data from the request body
+        });
+
         isChange['check'] = String(req.body.Environment);
-       
-        
         res.status(200).send("Document updated successfully");
     } catch (error) {
         console.error("Error updating document: ", error);
@@ -136,13 +140,6 @@ app.post("/sendToUnity", async (req, res) => {
 app.get("/EnvChange", async (req, res) => {
     res.send(isChange['check']);
 });
-
-
-
-
-
-
-
 
 // Handle Animation State
 app.post("/AnimationState", async (req, res) => {
