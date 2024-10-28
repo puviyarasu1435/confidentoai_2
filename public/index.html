@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Environment and Seat Booking</title>
     <style>
+<<<<<<< HEAD
+        /* Your existing styles */
+        .seating-layout {
+            display: grid;
+            gap: 10px;
+        }
+=======
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -53,28 +59,22 @@
             border: none;
         }
 
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
         .seat {
-            width: 50px;
-            height: 50px;
-            background-color: gray;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 14px;
+            border: 1px solid #ccc;
+            padding: 10px;
             text-align: center;
-            border-radius: 5%;
+            cursor: pointer;
         }
-
-        .seat.selected {
-            background-color: green;
-        }
-
-        .seat.occupied {
+        .occupied {
             background-color: red;
-            cursor: not-allowed;
+            color: white;
         }
+<<<<<<< HEAD
+        .selected {
+            background-color: yellow;
+        }
+=======
 
         #AnimationSelect {
             width: 100%;
@@ -93,9 +93,9 @@
             display: block;
             /* Show error message when active */
         }
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
     </style>
 </head>
-
 <body>
     <div id="OptionSelect">
         <h1>Select Environment, Character, and Seats</h1>
@@ -105,20 +105,82 @@
             <option value="">-- Choose an Environment --</option>
         </select>
 
-        <!-- Character Selection -->
         <label for="characterSelect">Select Character:</label>
 
         <select id="characterSelect">
             <option value="">-- Choose a Character --</option>
-            <!-- Options will be dynamically added here -->
         </select><br>
+<<<<<<< HEAD
+
+        <button id="bookButton" disabled>Book Seats</button>
+        <button id="ReadyButton" disabled>READY</button>
+
+        <label for="AnimationSelect">Select Animation:</label>
+=======
         <p id="errorMessageForCharacterSelect" class="errorMessage"></p>
         <button id="bookButton">Book Seats</button>
         <button id="ReadyButton">Ready</button>
 
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
         <select id="AnimationSelect">
-            <option value="IDEL">IDEL</option>
+            <option value="IDLE">IDLE</option>
             <option value="CLAP">CLAP</option>
+<<<<<<< HEAD
+            <option value="STAND_UP_AND_CLAP">STAND UP AND CLAP</option>
+        </select>
+        <h2>Current Animation State: <span id="AnimationStateText"></span></h2>
+    </div>
+
+    <div class="seating-layout"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000'; // Replace with your API URL
+        const SeatsData ={}
+        const Environment ={}
+        // Selectors
+        const seatContainer = document.querySelector('.seating-layout');
+        const bookButton = document.getElementById('bookButton');
+        const ReadyButton = document.getElementById('ReadyButton');
+        const characterSelect = document.getElementById('characterSelect');
+        const animationSelect = document.getElementById('AnimationSelect');
+        const animationStateText = document.getElementById('AnimationStateText');
+
+        // Fetch and listen to animation state
+        function fetchAnimationState() {
+            fetch(`${API_BASE_URL}/AnimationState`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.State)
+                    animationStateText.textContent = data.State || "Not Working";
+                })
+                .catch(error => console.error('Error fetching animation state:', error));
+        }
+
+        // Fetch environments and populate dropdown
+        function fetchEnvironments() {
+            fetch(`${API_BASE_URL}/environment`)
+                .then(response => response.json())
+                .then(environments => {
+                    const environmentSelect = document.getElementById('environmentSelect');
+                    environmentSelect.innerHTML = `<option value="">-- Choose an Environment --</option>`;
+                    environments.forEach(env => {
+                        const option = document.createElement('option');
+                        option.value = env.id;
+                        option.textContent = env.Name;
+                        environmentSelect.appendChild(option);
+                        Environment[env.id] = env.Name;
+                    });
+                })
+                .catch(error => console.error('Error fetching environments:', error));
+        }
+
+        // Fetch characters
+        function fetchCharacters() {
+            fetch(`${API_BASE_URL}/characters`)
+                .then(response => response.json())
+                .then(characters => {
+                    characterSelect.innerHTML = `<option value="">-- Choose a Character --</option>`;
+=======
             <option value="STAND_UP_AND_CLAP">STANDUP AND CLAP</option>
         </select>
 
@@ -161,25 +223,28 @@
                 const characters = await response.json();
 
                 if (Array.isArray(characters) && characters.length > 0) {
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
                     characters.forEach(character => {
                         const option = document.createElement('option');
                         option.value = character.id;
                         option.textContent = character.Name;
                         characterSelect.appendChild(option);
                     });
-                } else {
-                    console.error('No characters found or incorrect format:', characters);
-                }
-            } catch (error) {
-                console.error('Error fetching characters:', error);
-            }
+                })
+                .catch(error => console.error('Error fetching characters:', error));
         }
 
-        // Function to dynamically create seats based on seat data
+        // Populate seats dynamically
         function createSeats(seatData) {
             seatContainer.innerHTML = '';
             seatContainer.style.gridTemplateColumns = `repeat(auto-fit, minmax(50px, 1fr))`;
+<<<<<<< HEAD
+
+            Object.keys(seatData).forEach(seatId => {
+                const seat = seatData[seatId];
+=======
             seatData.forEach(seat => {
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
                 const seatElement = document.createElement('div');
                 seatElement.classList.add('seat');
                 seatElement.textContent = seat.Name;
@@ -188,37 +253,96 @@
                     seatElement.classList.add('occupied');
                 } else {
                     seatElement.addEventListener('click', () => {
-                        if (!seatElement.classList.contains('occupied')) {
-                            seatElement.classList.toggle('selected');
-                            updateBookButtonState();
-                        }
+                        seatElement.classList.toggle('selected');
+                        updateBookButtonState();
                     });
                 }
                 seatContainer.appendChild(seatElement);
             });
         }
 
-        // Fetch environments and populate the select dropdown
-        async function fetchEnvironments() {
-            try {
-                const response = await fetch('/environment');
-                const environments = await response.json();
-                const select = document.getElementById('environmentSelect');
-
-                environments.forEach(env => {
-                    const option = document.createElement('option');
-                    option.value = env.id;
-                    option.textContent = env.Name;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching environments:', error);
+        // Load seats on environment selection
+        document.getElementById('environmentSelect').addEventListener('change', e => {
+            const envId = e.target.value;
+<<<<<<< HEAD
+            if (envId) {
+                fetch(`${API_BASE_URL}/environment/${envId}/seats`)
+                    .then(response => response.json())
+                    .then(seatsData => {
+                        console.log(seatsData)
+                        createSeats(seatsData);
+                    })
+                    .catch(error => console.error('Error fetching seats:', error));
             }
+        });
+
+        // Booking seats and updating API
+        bookButton.addEventListener('click', () => {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            const characterName = characterSelect.options[characterSelect.selectedIndex].textContent;
+
+           
+            
+            selectedSeats.forEach(seat => {
+                const seatName = seat.textContent;
+                seat.classList.remove('selected');
+                seat.classList.add('occupied');
+                SeatsData[seatName] = characterName
+                
+            });
+            ReadyButton.removeAttribute("disabled");
+            // updates.push(fetch(`${API_BASE_URL}/environment/${document.getElementById('environmentSelect').value}/seats`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({ Occupied: true, Character: characterName }),
+            // }));
+            // Promise.all(updates)
+            //     .then(() => {
+            //         updateBookButtonState();
+            //     })
+            //     .catch(error => console.error('Error booking seats:', error));
+        });
+
+
+        ReadyButton.addEventListener('click', () => {
+            fetch(`${API_BASE_URL}/SetState`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ Environment: Environment[document.getElementById('environmentSelect').value], Seats: SeatsData }),
+            })
+            confirm("Save Data");
+        });
+
+        // Update animation state on change
+        animationSelect.addEventListener('change', e => {
+            const newState = e.target.value;
+            fetch(`${API_BASE_URL}/AnimationState`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ANIMATION_STATE: newState }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Animation state updated:', data);
+                fetchAnimationState();
+            })
+            .catch(error => console.error('Error updating animation state:', error));
+        });
+
+        function updateBookButtonState() {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            bookButton.disabled = selectedSeats.length === 0 || !characterSelect.value;
         }
 
-        // Handle environment selection
-        document.getElementById('environmentSelect').addEventListener('change', async (e) => {
-            const envId = e.target.value;
+        // Initial fetch calls
+        fetchAnimationState();
+=======
             if (!envId) {
                 displayError(errorMessageForEnvironment, "Please select an environment.");
                 return;
@@ -363,10 +487,14 @@
         }
 
         
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
         fetchEnvironments();
         fetchCharacters();
-        test();
     </script>
 </body>
+<<<<<<< HEAD
+</html>
+=======
 
 </html>
+>>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
