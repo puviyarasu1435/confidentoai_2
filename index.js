@@ -1,5 +1,4 @@
 const express = require("express");
-<<<<<<< HEAD
 const { firestoreDb, realtimeDb } = require("./firebaseConfig");
 const {
   collection,
@@ -13,17 +12,6 @@ const { getDatabase, ref, child, get, update } = require("firebase/database");
 
 const GeminiAIRoutes = require("./routes/Gemini");
 const path = require("path");
-=======
-const http = require("http");
-const { Server } = require("socket.io");
-const db = require("./firebaseConfig"); // Ensure this is correctly set up
-const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteField  } = require("firebase/firestore");
-const path = require("path");
-const GeminiAIRoutes = require("./routes/Gemini");
-
-let ANIMATION_STATE = {STATE:"IDEL"}; 
-let isChange = {check:""};
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
 
 const app = express();
 app.use(express.json());
@@ -123,37 +111,7 @@ app.post("/SetState", async (req, res) => {
     }
   });
 
-<<<<<<< HEAD
 // Post animation state to the Realtime Database
-=======
-// Send Data to Unity and Emit Event
-app.post("/sendToUnity", async (req, res) => {
-    console.log(req.body);
-    try {
-        const docRef = doc(db, "System", "uZCY1O4xlKq2AOWAnm1F");
-
-        // Combine the deletion of the Seats field and the update in a single updateDoc call
-        await updateDoc(docRef, {
-            Seats: deleteField(),  // Delete the Seats field
-            ...req.body            // Merge in the new data from the request body
-        });
-
-        isChange['check'] = String(req.body.Environment);
-        res.status(200).send("Document updated successfully");
-    } catch (error) {
-        console.error("Error updating document: ", error);
-        res.status(500).send("Error updating document");
-    }
-});
-
-
-
-app.get("/EnvChange", async (req, res) => {
-    res.send(isChange['check']);
-});
-
-// Handle Animation State
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
 app.post("/AnimationState", async (req, res) => {
   const animationState = req.body; // Assume the request body contains animation state
   try {
