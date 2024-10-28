@@ -5,61 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Environment and Seat Booking</title>
     <style>
-<<<<<<< HEAD
         /* Your existing styles */
         .seating-layout {
             display: grid;
             gap: 10px;
         }
-=======
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #environmentSelect,
-        #characterSelect {
-            width: 90%;
-            height: 10%;
-            margin: 5%;
-        }
-
-        .seating-layout {
-            display: grid;
-            gap: 5px;
-            margin-top: 20px;
-            width: 50%;
-            justify-items: stretch;
-        }
-
-        #OptionSelect {
-            width: 40%;
-            display: inline-flexbox;
-        }
-
-        #bookButton {
-            width: 100%;
-            height: 10%;
-            margin-top: 1%;
-            background-color: rgb(230, 78, 8);
-            color: white;
-            border-radius: 1%;
-            border: none;
-        }
-
-        #ReadyButton {
-            margin-top: 1%;
-            width: 100%;
-            height: 12%;
-            background-color: green;
-            color: white;
-            border-radius: 1%;
-            border: none;
-        }
-
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
         .seat {
             border: 1px solid #ccc;
             padding: 10px;
@@ -70,62 +20,31 @@
             background-color: red;
             color: white;
         }
-<<<<<<< HEAD
         .selected {
             background-color: yellow;
         }
-=======
-
-        #AnimationSelect {
-            width: 100%;
-            height: 10%;
-            margin-top: 10%;
-        }
-
-        .errorMessage {
-            color: red;
-            margin-top: 10px;
-            display: none;
-            /* Initially hide error messages */
-        }
-
-        .errorMessage.active {
-            display: block;
-            /* Show error message when active */
-        }
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
     </style>
 </head>
 <body>
     <div id="OptionSelect">
         <h1>Select Environment, Character, and Seats</h1>
         <label for="environmentSelect">Select Environment:</label>
-        <p id="errorMessageForSelectEnvironment" class="errorMessage"></p>
         <select id="environmentSelect">
             <option value="">-- Choose an Environment --</option>
         </select>
 
         <label for="characterSelect">Select Character:</label>
-
         <select id="characterSelect">
             <option value="">-- Choose a Character --</option>
         </select><br>
-<<<<<<< HEAD
 
         <button id="bookButton" disabled>Book Seats</button>
         <button id="ReadyButton" disabled>READY</button>
 
         <label for="AnimationSelect">Select Animation:</label>
-=======
-        <p id="errorMessageForCharacterSelect" class="errorMessage"></p>
-        <button id="bookButton">Book Seats</button>
-        <button id="ReadyButton">Ready</button>
-
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
         <select id="AnimationSelect">
             <option value="IDLE">IDLE</option>
             <option value="CLAP">CLAP</option>
-<<<<<<< HEAD
             <option value="STAND_UP_AND_CLAP">STAND UP AND CLAP</option>
         </select>
         <h2>Current Animation State: <span id="AnimationStateText"></span></h2>
@@ -180,50 +99,6 @@
                 .then(response => response.json())
                 .then(characters => {
                     characterSelect.innerHTML = `<option value="">-- Choose a Character --</option>`;
-=======
-            <option value="STAND_UP_AND_CLAP">STANDUP AND CLAP</option>
-        </select>
-
-        <h2>Current Animation State:<span id="AnimationStateText"></span></h2>
-    </div>
-    <div class="seating-layout"></div>
-
-    <script>
-        let seatContainer = document.querySelector('.seating-layout');
-        let bookButton = document.getElementById('bookButton');
-        let characterSelect = document.getElementById('characterSelect');
-        let readyButton = document.getElementById('ReadyButton');
-        let AnimationStateText = document.getElementById('AnimationStateText');
-        const Seatsdata = [];
-
-        // Error message elements
-        const errorMessageForEnvironment = document.getElementById('errorMessageForSelectEnvironment');
-        const errorMessageForCharacter = document.getElementById('errorMessageForCharacterSelect');
-
-        fetchAnimationState();
-
-        async function fetchAnimationState() {
-            try {
-                const response = await fetch('/AnimationState');
-                if (response.ok) {
-                    const animationState = await response.text();
-                    AnimationStateText.textContent = animationState;
-                } else {
-                    console.error('Failed to fetch animation state:', response.status);
-                }
-            } catch (error) {
-                console.error('Error fetching animation state:', error);
-            }
-        }
-
-        // Fetch characters and populate the character select dropdown
-        async function fetchCharacters() {
-            try {
-                const response = await fetch('/characters');
-                const characters = await response.json();
-
-                if (Array.isArray(characters) && characters.length > 0) {
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
                     characters.forEach(character => {
                         const option = document.createElement('option');
                         option.value = character.id;
@@ -238,13 +113,9 @@
         function createSeats(seatData) {
             seatContainer.innerHTML = '';
             seatContainer.style.gridTemplateColumns = `repeat(auto-fit, minmax(50px, 1fr))`;
-<<<<<<< HEAD
 
             Object.keys(seatData).forEach(seatId => {
                 const seat = seatData[seatId];
-=======
-            seatData.forEach(seat => {
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
                 const seatElement = document.createElement('div');
                 seatElement.classList.add('seat');
                 seatElement.textContent = seat.Name;
@@ -264,7 +135,6 @@
         // Load seats on environment selection
         document.getElementById('environmentSelect').addEventListener('change', e => {
             const envId = e.target.value;
-<<<<<<< HEAD
             if (envId) {
                 fetch(`${API_BASE_URL}/environment/${envId}/seats`)
                     .then(response => response.json())
@@ -342,159 +212,8 @@
 
         // Initial fetch calls
         fetchAnimationState();
-=======
-            if (!envId) {
-                displayError(errorMessageForEnvironment, "Please select an environment.");
-                return;
-            }
-            clearError(errorMessageForEnvironment);
-             Seatsdata.length = 0;
-            try {
-                const response = await fetch(`/environment/${envId}`);
-                const environment = await response.json();
-                createSeats(environment.Seats);
-            } catch (error) {
-                console.error('Error fetching seat data:', error);  
-            }
-        });
-
-        // Display error message
-        function displayError(element, message) {
-            element.textContent = message;
-            element.classList.add('active');
-        }
-
-        // Clear error message
-        function clearError(element) {
-            element.textContent = '';
-            element.classList.remove('active');
-        }
-
-        // Update the Book button's state
-        function updateBookButtonState() {
-            const selectedSeats = document.querySelectorAll('.seat.selected');
-            const characterSelected = characterSelect.value !== "";
-            bookButton.disabled = selectedSeats.length === 0 || !characterSelected;
-        }
-
-        // Enable/disable the Book button based on character selection and seat selection
-        characterSelect.addEventListener('change', (e) => {
-            const characterName = e.target.value;
-            if (!characterName) {
-                displayError(errorMessageForCharacter, "Please select a character.");
-            } else {
-                clearError(errorMessageForCharacter); // Clear error message if selection is valid
-            }
-            updateBookButtonState();
-        });
-
-        // Handle seat booking
-        // Handle seat booking
-        bookButton.addEventListener('click', () => {
-            const selectedSeats = document.querySelectorAll('.seat.selected');
-            const characterName = characterSelect.options[characterSelect.selectedIndex].textContent;
-            const environmentSelected = document.getElementById('environmentSelect').value !== "";
-
-            // Check for environment selection
-            if (!environmentSelected) {
-                displayError(errorMessageForCharacter, "Please select an environment before booking seats."); // Show error message
-                return;
-            }
-
-            // Check for character selection
-            if (!characterName) {
-                displayError(errorMessageForCharacter, "Please select a character."); // Show error message
-                return;
-            }
-
-            // Check for seat selection
-            if (selectedSeats.length === 0) {
-                displayError(errorMessageForCharacter, "Please select at least one seat before booking."); // Show error message
-                return;
-            }
-
-            // const seatNames = Array.from(selectedSeats).map(seat => seat.textContent);
-            // Seatsdata.length = 0;
-            selectedSeats.forEach(seat => {
-                Seatsdata.push({
-                    [seat.textContent]: characterName
-                });
-                seat.textContent = characterName; // Set seat name to character
-                seat.classList.remove('selected');
-                seat.classList.add('occupied');
-            });
-            updateBookButtonState();
-            readyButton.disabled = false;  // Enable the Ready button only after booking
-            clearError(errorMessageForCharacter); // Clear any error message after successful booking
-        });
-
-        // Handle the Ready button click
-        readyButton.addEventListener('click', async () => {
-            const selectedSeats = document.querySelectorAll('.seat.occupied');
-            const characterName = characterSelect.options[characterSelect.selectedIndex].textContent;
-            const environmentSelected = document.getElementById('environmentSelect').value !== "";
-
-            // Check for environment selection
-            if (!environmentSelected) {
-                displayError(errorMessageForCharacter, "Please select an environment before proceeding."); // Show error message
-                return;
-            }
-
-            // Check for seat booking before clicking Ready
-            if (Seatsdata.length === 0) {
-                displayError(errorMessageForCharacter, "Please book at least one seat before proceeding."); // Show error message
-                return;
-            }
-
-            console.log('Ready button clicked. Character:', characterName, 'Booked Seats:', Seatsdata);
-            const select = document.getElementById('environmentSelect');
-            const response = await fetch(`/environment/${select.value}`);
-            const environment = await response.json();
-
-            fetch(`/sendToUnity`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ Environment: environment.Index-1 , Seats: Seatsdata })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data);
-                });
-        });
-
-        document.getElementById('AnimationSelect').addEventListener('change', async (e) => {
-            const envId = e.target.value;
-            if (!envId) return;
-            fetch(`/AnimationState`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ANIMATION_STATE: envId }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    fetchAnimationState();
-                });
-        });
-
-        async function test() {
-            const response = await fetch(`/AnimationState1`);
-            const stateanimation = await response.json();
-            AnimationStateText = stateanimation.State;
-        }
-
-        
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
         fetchEnvironments();
         fetchCharacters();
     </script>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-
-</html>
->>>>>>> 4bb6b67622a2b3f76871f248d7968be82c38967c
